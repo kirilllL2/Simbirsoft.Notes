@@ -1,14 +1,18 @@
 using Microsoft.AspNetCore.Authentication;
+using Notes.Server.Common.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAutoMapper(typeof(NoteProfile));
 
 builder.Services.AddDbContext<NotesDbContext>(opt =>
 				opt.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL"),
 				sqlOpt => sqlOpt.MigrationsAssembly(typeof(NotesDbContext).Assembly.FullName)));
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 builder.Services.AddDefaultIdentity<User>(options =>
 {
-	options.Password.RequiredLength = 2;
+	options.Password.RequiredLength = 6;
 	options.Password.RequireDigit = false;
 	options.Password.RequireNonAlphanumeric = false;
 	options.Password.RequireLowercase = false;
