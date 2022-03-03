@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>Notes.Server-0C095D64-702E-487F-95A1-154CFDAEB6E3</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,10 +16,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Client\Notes.Client.csproj" />
     <ProjectReference Include="..\Shared\Notes.Shared.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
   </ItemGroup>
 
 

@@ -1,8 +1,26 @@
+using Microsoft.AspNetCore.Authentication;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<NotesDbContext>(opt =>
 				opt.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL"),
 				sqlOpt => sqlOpt.MigrationsAssembly(typeof(NotesDbContext).Assembly.FullName)));
+
+builder.Services.AddDefaultIdentity<User>(options =>
+{
+	options.Password.RequiredLength = 2;
+	options.Password.RequireDigit = false;
+	options.Password.RequireNonAlphanumeric = false;
+	options.Password.RequireLowercase = false;
+	options.Password.RequireUppercase = false;
+})
+				.AddEntityFrameworkStores<NotesDbContext>();
+
+builder.Services.AddIdentityServer()
+	.AddApiAuthorization<User, NotesDbContext>();
+
+builder.Services.AddAuthentication()
+	.AddIdentityServerJwt();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -43,6 +61,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseIdentityServer();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();
