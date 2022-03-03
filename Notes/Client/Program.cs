@@ -14,4 +14,6 @@ builder.Services.AddHttpClient("Notes.ServerAPI", client =>
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
     .CreateClient("Notes.ServerAPI"));
 
+builder.Services.AddApiAuthorization();
+
 await builder.Build().RunAsync();
