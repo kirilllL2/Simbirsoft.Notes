@@ -13,6 +13,8 @@ public class NotesDbContext : ApiAuthorizationDbContext<User>
 	{
 	}
 
+	public DbSet<Note> Notes { get; set; }
+
 	protected override void OnModelCreating(ModelBuilder builder)
 	{
 		base.OnModelCreating(builder);
