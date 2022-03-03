@@ -1,8 +1,26 @@
-using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddDbContext<NotesDbContext>(opt =>
+				opt.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL"),
+				sqlOpt => sqlOpt.MigrationsAssembly(typeof(NotesDbContext).Assembly.FullName)));
+
+builder.Services.AddDefaultIdentity<User>(options =>
+{
+	options.Password.RequiredLength = 2;
+	options.Password.RequireDigit = false;
+	options.Password.RequireNonAlphanumeric = false;
+	options.Password.RequireLowercase = false;
+	options.Password.RequireUppercase = false;
+})
+				.AddEntityFrameworkStores<NotesDbContext>();
+
+builder.Services.AddIdentityServer()
+	.AddApiAuthorization<User, NotesDbContext>();
+
+builder.Services.AddAuthentication()
+	.AddIdentityServerJwt();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -12,6 +30,21 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+	using (var scope = app.Services.CreateScope())
+	{
+		var serviceProvider = scope.ServiceProvider;
+		try
+		{
+			var context = serviceProvider.GetRequiredService<NotesDbContext>();
+			DbInitializer.Initialize(context);
+		}
+		catch (Exception e)
+		{
+			var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+			logger.LogError(e, "An error occurred while app initialization");
+		}
+	}
+
 	app.UseWebAssemblyDebugging();
 }
 else
@@ -28,6 +61,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseIdentityServer();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();
