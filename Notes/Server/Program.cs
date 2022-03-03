@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.ResponseCompression;
-
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddDbContext<NotesDbContext>(opt =>
+				opt.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL"),
+				sqlOpt => sqlOpt.MigrationsAssembly(typeof(NotesDbContext).Assembly.FullName)));
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -12,6 +12,21 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+	using (var scope = app.Services.CreateScope())
+	{
+		var serviceProvider = scope.ServiceProvider;
+		try
+		{
+			var context = serviceProvider.GetRequiredService<NotesDbContext>();
+			DbInitializer.Initialize(context);
+		}
+		catch (Exception e)
+		{
+			var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+			logger.LogError(e, "An error occurred while app initialization");
+		}
+	}
+
 	app.UseWebAssemblyDebugging();
 }
 else
