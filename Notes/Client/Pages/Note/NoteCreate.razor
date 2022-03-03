@@ -1,6 +1,7 @@
 ﻿@page "/notes/create"
 @attribute [Authorize]
 @inject HttpClient HttpClient
+@inject IToastService ToastService
 
 <h2>Create Note</h2>
 
@@ -33,6 +34,15 @@
 
 	private async Task Create()
 	{
-		await HttpClient.PostAsJsonAsync(APIEndpoints.CreateNote, _createNoteDto);
+		HttpResponseMessage response = await HttpClient.PostAsJsonAsync(APIEndpoints.CreateNote, _createNoteDto);
+
+		if (response.IsSuccessStatusCode)
+		{
+			ToastService.ShowSuccess($"Note: {_createNoteDto.Title} created!");
+		}
+		else
+		{
+			ToastService.ShowError($"Exception: {response.StatusCode}");
+		}
 	}
 }
