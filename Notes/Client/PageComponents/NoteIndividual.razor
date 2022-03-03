@@ -1,0 +1,14 @@
+﻿<div class="card">
+  <div class="card-body">
+    <h5 class="card-title fw-bold">@Note.Title</h5>
+    <p class="card-text">@Note.Content</p>
+  </div>
+  <div class="card-footer text-muted">
+    @Note.CreationDate.ToString("g")
+  </div>
+</div>
+
+@code {
+	[Parameter]
+	public NoteVM Note { get; set; }
+}
