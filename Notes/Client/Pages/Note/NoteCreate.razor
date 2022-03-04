@@ -1,0 +1,48 @@
+﻿@page "/notes/create"
+@attribute [Authorize]
+@inject HttpClient HttpClient
+@inject IToastService ToastService
+
+<h2>Create Note</h2>
+
+<div class="row">
+	<div class="col-sm-12 col-md-6 col-lg-4">
+		<EditForm Model="_createNoteDto" OnValidSubmit="Create">
+			<DataAnnotationsValidator />
+
+			<div class="form-group">
+				<label>Title: </label>
+				<div>
+					<InputText class="form-control mb-2" @bind-Value="_createNoteDto.Title" />
+					<ValidationMessage For="(() => _createNoteDto.Title)" />
+				</div>
+			</div >
+			<div class="form-group">
+				<label>Content: </label>
+				<div>
+					<InputTextArea class="form-control mb-3" @bind-Value="_createNoteDto.Content"/>
+					<ValidationMessage For="(() => _createNoteDto.Content)"/>
+				</div>
+			</div>
+			<button class="btn btn-outline-primary">Create</button>
+		</EditForm>
+	</div>
+</div>
+
+@code {
+	private CreateNoteDTO _createNoteDto = new();
+
+	private async Task Create()
+	{
+		HttpResponseMessage response = await HttpClient.PostAsJsonAsync(APIEndpoints.CreateNote, _createNoteDto);
+
+		if (response.IsSuccessStatusCode)
+		{
+			ToastService.ShowSuccess($"Note: {_createNoteDto.Title} created!");
+		}
+		else
+		{
+			ToastService.ShowError($"Exception: {response.StatusCode}");
+		}
+	}
+}

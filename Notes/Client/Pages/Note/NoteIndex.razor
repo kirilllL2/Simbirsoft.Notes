@@ -1,0 +1,36 @@
+﻿@page "/notes"
+@attribute [Authorize]
+@inject HttpClient HttpClient
+
+@if (_notes == null)
+{
+	<Spinner />
+}
+else if (_notes.Count == 0)
+{
+	<div class="alert alert-success" role="alert">
+		<h4 class="alert-heading">Well done!</h4>
+		<p>The collection is empty at this time</p>
+	</div>
+}
+else
+{
+	<h2>Your Notes</h2>
+	<div class="row">
+		@foreach (var note in _notes)
+		{
+			<div class="col-sm-12 col-md-5 col-lg-4 mb-2">
+				<NoteIndividual Note=note />
+			</div>
+		}
+	</div>
+}
+
+@code {
+	private List<NoteVM>? _notes;
+
+	protected override async Task OnInitializedAsync()
+	{
+		_notes = await HttpClient.GetFromJsonAsync<List<NoteVM>>(APIEndpoints.GetNotesByUser);
+	}
+}

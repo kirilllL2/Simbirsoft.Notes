@@ -1,0 +1,32 @@
+version: '3.4'
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  notes.server:
+    restart: always
+    image: notesserver
+    build:
+      context: .
+      dockerfile: Notes/Server/Dockerfile
+    ports:
+      - 7001:7001
+    depends_on:
+      - "postgre_image"
+    networks:
+      - app-network
+
+  postgre_image:
+    image: 'postgres:latest'
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=aBricos007
+      - POSTGRES_DB=NotesDB
+    volumes:
+      - ./postgres-data:/var/lib/pgsql/data/
+    ports:
+      - '5432:5432'
+    networks:
+      - app-network
